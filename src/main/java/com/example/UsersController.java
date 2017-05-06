@@ -7,7 +7,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +21,6 @@ public class UsersController {
 
 	@Autowired
 	private UsersRepository repository;
-
-	@ModelAttribute
-	UserForm userForm() {
-		return new UserForm();
-	}
 
 	@RequestMapping(path = "/users", method = RequestMethod.GET)
 	@Transactional
