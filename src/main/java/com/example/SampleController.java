@@ -1,5 +1,14 @@
 package com.example;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +61,49 @@ public class SampleController {
 	@RequestMapping(path = "/sample/{id}", method = RequestMethod.DELETE)
 	String destory(Model model, @PathVariable("id") int id) {
 		jdbcTemplate.update("delete from user where id = ? ", id);
+		return "redirect:/sample";
+	}
+
+	@RequestMapping(path = "/sample/upload", method = RequestMethod.GET)
+	String uploadview(Model model) {
+		return "sample/upload";
+	}
+
+	@RequestMapping(path = "/sample/upload", method = RequestMethod.POST)
+	String upload(Model model, UploadForm uploadForm) {
+		if (uploadForm.getFile().isEmpty()) {
+			return "sample/upload";
+		}
+
+		// check upload distination directory.If there was no directory, make
+		// func.
+		Path path = Paths.get("/Users/kusakai/Documents/workspace-sts-3.8.4.RELEASE/demo-kusa/image");
+		if (!Files.exists(path)) {
+			try {
+				Files.createDirectory(path);
+			} catch (NoSuchFileException ex) {
+				System.err.println(ex);
+			} catch (IOException ex) {
+				System.err.println(ex);
+			}
+		}
+
+		int dot = uploadForm.getFile().getOriginalFilename().lastIndexOf(".");
+		String extention = "";
+		if (dot > 0) {
+			extention = uploadForm.getFile().getOriginalFilename().substring(dot).toLowerCase();
+		}
+		String filename = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now());
+		Path uploadfile = Paths
+				.get("/Users/kusakai/Documents/workspace-sts-3.8.4.RELEASE/demo-kusa/image/" + filename + extention);
+
+		try (OutputStream os = Files.newOutputStream(uploadfile, StandardOpenOption.CREATE)) {
+			byte[] bytes = uploadForm.getFile().getBytes();
+			os.write(bytes);
+		} catch (IOException ex) {
+			System.err.println(ex);
+		}
+
 		return "redirect:/sample";
 	}
 }
